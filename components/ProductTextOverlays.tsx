@@ -30,7 +30,7 @@ export default function ProductTextOverlays({ product, scrollYProgress }: Props)
             {/* Section 1 */}
             <div className="absolute top-[10%] w-full flex justify-center items-center pointer-events-auto">
                 <motion.div style={{ opacity: opacity1, y: y1 }} className="text-center p-8">
-                    <h2 className="text-6xl md:text-8xl font-bold mb-4 drop-shadow-lg tracking-tighter">{product.section1.title}</h2>
+                    <h1 className="text-6xl md:text-8xl font-bold mb-4 drop-shadow-lg tracking-tighter">{product.section1.title}</h1>
                     <p className="text-xl md:text-3xl text-white/90 font-light tracking-[0.2em] uppercase">{product.section1.subtitle}</p>
                 </motion.div>
             </div>

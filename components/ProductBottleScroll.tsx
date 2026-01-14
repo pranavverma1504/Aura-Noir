@@ -3,6 +3,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useScroll, useTransform, motion, MotionValue } from 'framer-motion';
 
+// Extend Window interface for global cache
+declare global {
+    interface Window {
+        productImageCache?: Record<string, HTMLImageElement[]>;
+    }
+}
+
 interface ProductBottleScrollProps {
     folderPath: string;
     // We accept a function that receives scrollProgress, or just children
@@ -23,28 +30,48 @@ export default function ProductBottleScroll({ folderPath, children }: ProductBot
 
     const frameIndex = useTransform(scrollYProgress, [0, 1], [0, 199]); // 0 to 199 for 200 frames
 
+    // Global cache to persist images across navigations
+    const cacheKey = folderPath;
+
     // Preload images
     useEffect(() => {
+        // Check cache first
+        if (window.productImageCache && window.productImageCache[cacheKey]) {
+            setImages(window.productImageCache[cacheKey]);
+            setIsLoaded(true);
+            return;
+        }
+
         const loadImages = async () => {
-            const loadedImages: HTMLImageElement[] = [];
             const frameCount = 200;
+            const promises: Promise<HTMLImageElement>[] = [];
 
             for (let i = 1; i <= frameCount; i++) {
-                const img = new Image();
-                // Construct filename: ezgif-frame-001.jpg
-                const filename = `ezgif-frame-${i.toString().padStart(3, '0')}.jpg`;
-                img.src = `${folderPath}/${filename}`;
-                await new Promise((resolve, reject) => {
-                    img.onload = resolve;
-                    img.onerror = (e) => {
-                        console.error(`Failed to load image ${i}`, e);
-                        resolve(null); // Continue even if one fails
+                promises.push(new Promise((resolve) => {
+                    const img = new Image();
+                    const filename = `ezgif-frame-${i.toString().padStart(3, '0')}.jpg`;
+                    img.src = `${folderPath}/${filename}`;
+                    img.onload = () => resolve(img);
+                    img.onerror = () => {
+                        console.error(`Failed to load image ${i}`);
+                        // Return a placeholder or the broken image object to maintain index alignment
+                        resolve(img);
                     };
-                });
-                loadedImages.push(img);
+                }));
             }
-            setImages(loadedImages);
-            setIsLoaded(true);
+
+            try {
+                const loadedImages = await Promise.all(promises);
+
+                // Initialize global cache if needed
+                if (!window.productImageCache) window.productImageCache = {};
+                window.productImageCache[cacheKey] = loadedImages;
+
+                setImages(loadedImages);
+                setIsLoaded(true);
+            } catch (err) {
+                console.error("Error loading sequence images", err);
+            }
         };
 
         loadImages();
