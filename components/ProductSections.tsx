@@ -1,3 +1,5 @@
+'use client';
+
 import { Product } from "@/data/products";
 import { motion } from "framer-motion";
 

@@ -7,7 +7,17 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductBottleScroll from '@/components/ProductBottleScroll';
 import ProductTextOverlays from '@/components/ProductTextOverlays';
-import { DetailsSection, FreshnessSection, BuyNowSection } from '@/components/ProductSections';
+import dynamic from 'next/dynamic';
+
+const DetailsSection = dynamic(() => import('@/components/ProductSections').then(mod => mod.DetailsSection), {
+    loading: () => <div className="h-96 flex items-center justify-center text-white/20">Loading Details...</div>
+});
+const FreshnessSection = dynamic(() => import('@/components/ProductSections').then(mod => mod.FreshnessSection), {
+    loading: () => <div className="h-96 flex items-center justify-center text-white/20">Loading...</div>
+});
+const BuyNowSection = dynamic(() => import('@/components/ProductSections').then(mod => mod.BuyNowSection), {
+    loading: () => <div className="h-96 flex items-center justify-center text-white/20">Loading Offer...</div>
+});
 
 export default function Home() {
     const [currentIndex, setCurrentIndex] = useState(0);
