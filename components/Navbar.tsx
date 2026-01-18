@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Navbar() {
     const { scrollY } = useScroll();
-    const [isScrolled, setIsScrolled] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false); 
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         setIsScrolled(latest > 50);
